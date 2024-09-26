@@ -1,6 +1,4 @@
 # SatisfactoryClient
-<a href="https://www.buymeacoffee.com/roniemartinez" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
-
 ## Description
 A client utilizing the HTTPS API provided by Satisfactory servers. for documentation on the API, see the [wiki docs](https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API).
 
