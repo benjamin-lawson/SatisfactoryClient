@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatisfactoryClient", "SatisfactoryClient\SatisfactoryClient.csproj", "{82BDD563-FD87-4027-9E61-F4531E979557}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatisfactoryClient", "SatisfactoryClient\SatisfactoryClient.csproj", "{82BDD563-FD87-4027-9E61-F4531E979557}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication", "ConsoleApplication\ConsoleApplication.csproj", "{798AD02D-73E7-4C9E-9296-568D9296BC2F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestConsoleApplication", "ConsoleApplication\TestConsoleApplication.csproj", "{798AD02D-73E7-4C9E-9296-568D9296BC2F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
