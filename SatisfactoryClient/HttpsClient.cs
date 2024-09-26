@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Net.Http.Headers;
+using Microsoft.Extensions.Logging;
 
 namespace SatisfactoryClient
 {
@@ -20,12 +21,13 @@ namespace SatisfactoryClient
         private string _authToken;
         private Regex _ipRegex = new(@"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}");
         private HttpClient _httpClient;
+        private ILogger _logger;
 
         public string IP => _ip;
         public int Port => _port;
         public string FullConnectionString => $"https://{IP}:{Port}/api/v1";
 
-        public HttpsClient(string ip, string authToken, int port = 7777, bool trustSelfSignedCerts = false) 
+        public HttpsClient(string ip, string authToken, int port = 7777, bool trustSelfSignedCerts = false, HttpClient client = null, ILogger logger = null) 
         {
             if (!_ipRegex.Match(ip).Success)
             {
@@ -48,6 +50,12 @@ namespace SatisfactoryClient
 
             _authToken = authToken;
 
+            if (client != null)
+            {
+                _httpClient = client;
+                return;
+            }
+
             if (trustSelfSignedCerts)
             {
                 var handler = new HttpClientHandler();
@@ -65,6 +73,19 @@ namespace SatisfactoryClient
             }
 
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_authToken}");
+
+            if (logger is null)
+            {
+                using ILoggerFactory factory = LoggerFactory.Create(builder => 
+                {
+                    builder.SetMinimumLevel(LogLevel.Debug).AddSimpleConsole();
+                });
+                _logger= factory.CreateLogger<HttpsClient>();
+            }
+            else
+            {
+                _logger = logger;
+            }
         }
 
         private HttpContent SerializeRequestData<T>(string functionName, T? data = default)
@@ -87,6 +108,8 @@ namespace SatisfactoryClient
 
             if (typeof(Q) == typeof(bool)) return (Q)Convert.ChangeType(response.IsSuccessStatusCode, typeof(Q));
 
+            _logger.LogDebug($"{functionName} Response: {await response.Content.ReadAsStringAsync()}");
+
             return (await response.Content.ReadFromJsonAsync<RequestResponse<Q>>()).Data;
         }
 
@@ -97,6 +120,6 @@ namespace SatisfactoryClient
         public async Task<bool> ApplyServerOptionsAsync(Dictionary<string, string> settings) => await PostToServerAsync<ApplyServerOptionsRequest, bool>("ApplyServerOptions", new ApplyServerOptionsRequest() { UpdatedServerOptions = settings });
         public async Task<GetAdvancedGameSettingsResponse> GetAdvancedGameSettingsAsync() => await PostToServerAsync<Dictionary<string, string>, GetAdvancedGameSettingsResponse>("GetAdvancedGameSettings");
         public async Task<bool> ApplyAdvancedGameSettingsAsync(Dictionary<string, string> settings) => await PostToServerAsync<ApplyAdvancedGameSettingsRequest, bool>("ApplyAdvancedGameSettings", new ApplyAdvancedGameSettingsRequest() { AppliedAdvancedGameSettings = settings });
-        
+        public async Task<EnumerateSessionsResponse> EnumerateSessionsAsync() => await PostToServerAsync<Dictionary<string, string>, EnumerateSessionsResponse>("EnumerateSessions");
     }
 }
