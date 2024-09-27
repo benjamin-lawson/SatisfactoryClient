@@ -12,6 +12,7 @@ using System.Text.Json.Serialization;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
 using SatisfactoryClient.DT;
+using SatisfactoryClient.DTO.Requests;
 
 namespace SatisfactoryClient
 {
@@ -251,8 +252,62 @@ namespace SatisfactoryClient
         /// Sets the passed game settings as pending settings. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#ApplyAdvancedGameSettings">Wiki Docs</see> for more information. <br/>
         /// <b>NOTE: Pending game settings will require a server restart to apply.</b>
         /// </summary>
-        public async Task<ClientResponse<bool>> ApplyAdvancedGameSettingsAsync(Dictionary<string, string> settings) => 
+        public async Task<ClientResponse<bool>> ApplyAdvancedGameSettingsAsync(Dictionary<string, string> settings) =>
             await PostToServerAsync<ApplyAdvancedGameSettingsRequest, bool>("ApplyAdvancedGameSettings", new ApplyAdvancedGameSettingsRequest() { AppliedAdvancedGameSettings = settings });
+
+        /// <summary>
+        /// Runs a command just like the in-game console on the server. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#RunCommand">Wiki Docs</see> for more information.
+        /// </summary>
+        public async Task<ClientResponse<RunCommandResponse>> RunCommandAsync(string command) =>
+            await PostToServerAsync<RunCommandRequest, RunCommandResponse>("RunCommand", new RunCommandRequest() { Command = command });
+
+        /// <summary>
+        /// Creates a new session. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#CreateNewGame">Wiki Docs</see> for more information. <br/>
+        /// <b>NOTE: The API will be unavailable until the game is created.</b>
+        /// </summary>
+        public async Task<ClientResponse<bool>> CreateNewGameAsync(
+                string sessionName,
+                string? mapName,
+                string? startingLocation,
+                bool skipOnboarding,
+                Dictionary<string, string> advancedGameSettings,
+                Dictionary<string, string> customOptions
+            ) => await PostToServerAsync<CreateNewGameRequest, bool>("CreateNewGame", new CreateNewGameRequest()
+                {
+                    NewGameData = new NewGameData()
+                    {
+                        SessionName = sessionName,
+                        MapName = mapName,
+                        StartingLocation = startingLocation,
+                        SkipOnboarding = skipOnboarding,
+                        AdvancedGameSettings = advancedGameSettings,
+                        CustomOptionsOnlyForModding = customOptions
+                    }
+                });
+
+        /// <summary>
+        /// Loads the game with the save file provided. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#LoadGame">Wiki Docs</see> for more information.
+        /// </summary>
+        public async Task<ClientResponse<bool>> SaveGameAsync(string saveName, bool enabledAdvancedGameSettings) =>
+             await PostToServerAsync<LoadGameRequest, bool>("SaveGame", new LoadGameRequest() { SaveName = saveName, AdvancedGameSettingsEnabled = enabledAdvancedGameSettings });
+
+        /// <summary>
+        /// Saves the game with the file name passed. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#SaveGame">Wiki Docs</see> for more information.
+        /// </summary>
+        public async Task<ClientResponse<bool>> SaveGameAsync(string saveName) =>
+             await PostToServerAsync<SaveRequest, bool>("SaveGame", new SaveRequest() { SaveName = saveName });
+
+        /// <summary>
+        /// Deletes the save file with the file name passed. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#DeleteSaveFile">Wiki Docs</see> for more information.
+        /// </summary>
+        public async Task<ClientResponse<bool>> DeleteSaveFileAsync(string saveName) =>
+             await PostToServerAsync<SaveRequest, bool>("DeleteSaveFile", new SaveRequest() { SaveName = saveName });
+
+        /// <summary>
+        /// Deletes all the save files associated with a session. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#DeleteSaveSession">Wiki Docs</see> for more information.
+        /// </summary>
+        public async Task<ClientResponse<bool>> DeleteSaveSessionAsync(string sessionName) =>
+             await PostToServerAsync<SessionChangeRequest, bool>("DeleteSaveSession", new SessionChangeRequest() { SessionName = sessionName });
 
         /// <summary>
         /// Attempts to set the auto loaded session. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#SetAutoLoadSessionName">Wiki Docs</see> for more information.
@@ -265,6 +320,12 @@ namespace SatisfactoryClient
         /// </summary>
         public async Task<ClientResponse<EnumerateSessionsResponse>> EnumerateSessionsAsync() => 
             await PostToServerAsync<Dictionary<string, string>, EnumerateSessionsResponse>("EnumerateSessions");
+
+        /// <summary>
+        /// Attempts to shutdown the server. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#Shutdown">Wiki Docs</see> for more information.
+        /// </summary>
+        public async Task<ClientResponse<bool>> ShutdownAsync() =>
+            await PostToServerAsync<Dictionary<string, string>, bool>("Shutdown");
 
         
     }
