@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace SatisfactoryClient.DT
+namespace SatisfactoryClient.DTO
 {
     [Serializable]
     public class ErrorResponse

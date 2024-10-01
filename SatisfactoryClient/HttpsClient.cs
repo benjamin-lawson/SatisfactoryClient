@@ -1,18 +1,8 @@
 ﻿using SatisfactoryClient.DTO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http.Json;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
-using SatisfactoryClient.DT;
-using SatisfactoryClient.DTO.Requests;
 
 namespace SatisfactoryClient
 {
@@ -29,7 +19,7 @@ namespace SatisfactoryClient
         public int Port => _port;
         public string FullConnectionString => _fullConnectionString;
 
-        public HttpsClient(string ip, string authToken = "", int port = 7777, bool trustSelfSignedCerts = false, bool usePort = true, HttpClient? client = null, ILogger? logger = null) 
+        public HttpsClient(string ip, string authToken = "", int port = 7777, bool trustSelfSignedCerts = false, bool usePort = true, HttpClient? client = null, ILogger? logger = null)
         {
             _ip = ip;
 
@@ -40,17 +30,13 @@ namespace SatisfactoryClient
 
             _port = port;
 
-            if (string.IsNullOrEmpty(authToken))
-            {
-                throw new InvalidDataException($"Auth token cannot be empty or null string");
-            }
-
-            _authToken = authToken;
-
             if (client != null)
             {
                 _httpClient = client;
-                return;
+            }
+            else
+            {
+                _httpClient = new HttpClient();
             }
 
             if (trustSelfSignedCerts)
@@ -64,25 +50,20 @@ namespace SatisfactoryClient
                 };
                 _httpClient = new HttpClient(handler);
             }
-            else
-            {
-                _httpClient = new HttpClient();
-            }
 
             if (!string.IsNullOrEmpty(authToken))
             {
                 _authToken = authToken;
                 _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_authToken}");
             }
-            
 
             if (logger is null)
             {
-                using ILoggerFactory factory = LoggerFactory.Create(builder => 
+                using ILoggerFactory factory = LoggerFactory.Create(builder =>
                 {
                     builder.SetMinimumLevel(LogLevel.Debug).AddSimpleConsole();
                 });
-                _logger= factory.CreateLogger<HttpsClient>();
+                _logger = factory.CreateLogger<HttpsClient>();
             }
             else
             {
@@ -119,6 +100,11 @@ namespace SatisfactoryClient
         /// <returns></returns>
         internal HttpContent SerializeRequestData<T>(string functionName, T? data = default)
         {
+            if (string.IsNullOrEmpty(functionName))
+            {
+                throw new InvalidDataException("Function name cannot be null or empty");
+            }
+
             RequestData<T> requestData = new RequestData<T>() { Function = functionName };
             requestData.Data = data is null ? (T)Activator.CreateInstance(typeof(T)) : data;
 
@@ -143,8 +129,8 @@ namespace SatisfactoryClient
             var response = await _httpClient.PostAsync(FullConnectionString, SerializeRequestData<T>(functionName, data));
             string responseBody = await response.Content.ReadAsStringAsync();
             _logger.LogDebug($"{functionName} Response: {await response.Content.ReadAsStringAsync()}");
-            ClientResponse<Q> clientResponse = new ClientResponse<Q>() { 
-                StatusCode = response.StatusCode 
+            ClientResponse<Q> clientResponse = new ClientResponse<Q>() {
+                StatusCode = response.StatusCode
             };
 
             try
@@ -156,21 +142,23 @@ namespace SatisfactoryClient
                 _logger.LogTrace($"Execption in reading error response: {ex.Message}");
             }
 
-            if (typeof(Q) == typeof(bool)) 
+            if (typeof(Q) == typeof(bool))
             {
+                clientResponse.IsSuccessful = response.IsSuccessStatusCode;
                 return clientResponse;
             }
 
             try
             {
                 clientResponse.RequestResponse = JsonSerializer.Deserialize<RequestResponse<Q>>(responseBody);
+                clientResponse.IsSuccessful = response.IsSuccessStatusCode && !clientResponse.HasError && clientResponse.RequestResponse.Data is not null;
             }
             catch (Exception ex)
             {
                 _logger.LogTrace($"Execption in reading response body: {ex.Message}");
+                clientResponse.ErrorResponse = new ErrorResponse() { ErrorCode = "unknown_exception", ErrorMessage = ex.Message };
+                clientResponse.IsSuccessful = false;
             }
-
-            clientResponse.IsSuccessful = response.IsSuccessStatusCode && !clientResponse.HasError;
 
             return clientResponse;
         }
@@ -178,8 +166,8 @@ namespace SatisfactoryClient
         /// <summary>
         /// Retrieves the health of the server. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#HealthCheck">Wiki Docs</see> for more information.
         /// </summary>
-        public async Task<ClientResponse<HealthCheckResponse>> HealthCheckAsync() => 
-            await PostToServerAsync<HealthCheckRequest, HealthCheckResponse>("HealthCheck");
+        public async Task<ClientResponse<HealthCheckResponse>> HealthCheckAsync(string clientCustomData) =>
+            await PostToServerAsync<HealthCheckRequest, HealthCheckResponse>("HealthCheck", new HealthCheckRequest() { ClientCustomData = clientCustomData });
 
         /// <summary>
         /// Verifies the bearer token is valid. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#VerifyAuthentication_Token">Wiki Docs</see> for more information.
