@@ -1,6 +1,6 @@
 ﻿using Moq;
 using Moq.Contrib.HttpClient;
-using SatisfactoryClient;
+using SatisfactorySdk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ namespace SatisfactoryClientTests
     public class VerifyAuthenticationTokenTests
     {
         private const string _ip = "127.0.0.1";
-        private HttpsClient _client;
+        private SatisfactoryClient _client;
 
         public bool MatchRequestFunction(HttpRequestMessage request)
         {
@@ -39,7 +39,7 @@ namespace SatisfactoryClientTests
                     StatusCode = HttpStatusCode.BadRequest
                 });
 
-            _client = new HttpsClient(_ip, client: mockHandler.CreateClient());
+            _client = new SatisfactoryClient(_ip, client: mockHandler.CreateClient());
         }
 
         [Test]

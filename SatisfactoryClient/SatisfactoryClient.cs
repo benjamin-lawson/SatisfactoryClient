@@ -1,12 +1,12 @@
-﻿using SatisfactoryClient.DTO;
+﻿using SatisfactorySdk.DTO;
 using System.Text;
 using System.Text.Json;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
 
-namespace SatisfactoryClient
+namespace SatisfactorySdk
 {
-    public class HttpsClient
+    public class SatisfactoryClient
     {
         private string _ip;
         private int _port = 7777;
@@ -19,7 +19,7 @@ namespace SatisfactoryClient
         public int Port => _port;
         public string FullConnectionString => _fullConnectionString;
 
-        public HttpsClient(string ip, string authToken = "", int port = 7777, bool trustSelfSignedCerts = false, bool usePort = true, HttpClient? client = null, ILogger? logger = null)
+        public SatisfactoryClient(string ip, string authToken = "", int port = 7777, bool trustSelfSignedCerts = false, bool usePort = true, HttpClient? client = null, ILogger? logger = null)
         {
             _ip = ip;
 
@@ -63,7 +63,7 @@ namespace SatisfactoryClient
                 {
                     builder.SetMinimumLevel(LogLevel.Debug).AddSimpleConsole();
                 });
-                _logger = factory.CreateLogger<HttpsClient>();
+                _logger = factory.CreateLogger<SatisfactoryClient>();
             }
             else
             {

@@ -1,10 +1,10 @@
-﻿using SatisfactoryClient;
+﻿using SatisfactorySdk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SatisfactoryClient.DTO;
+using SatisfactorySdk.DTO;
 using System.Net.Http.Headers;
 using Moq.Protected;
 
@@ -12,12 +12,12 @@ namespace SatisfactoryClientTests
 {
     public class RequestSerializationTests
     {
-        private HttpsClient _client;
+        private SatisfactoryClient _client;
 
         [SetUp] 
         public void SetUp() 
         {
-            _client = new HttpsClient("127.0.0.1");
+            _client = new SatisfactoryClient("127.0.0.1");
         }
 
         [Test]

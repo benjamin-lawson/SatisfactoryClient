@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SatisfactoryClient.DTO
+namespace SatisfactorySdk.DTO
 {
     public class ClientResponse<T>
     {

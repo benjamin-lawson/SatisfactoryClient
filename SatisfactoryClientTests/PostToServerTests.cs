@@ -1,6 +1,6 @@
 ﻿using Moq;
 using Moq.Contrib.HttpClient;
-using SatisfactoryClient;
+using SatisfactorySdk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +47,7 @@ namespace SatisfactoryClientTests
                     Content = new StringContent("{\"data\":{\"testProperty1\":\"TEST1\",\"testProperty_2\":123}}")
                 });
 
-            var client = new HttpsClient(_ip, client: mockHandler.CreateClient());
+            var client = new SatisfactoryClient(_ip, client: mockHandler.CreateClient());
             var response = await client.PostToServerAsync<TestFunctionRequest, TestFunctionResponse>("TestFunction");
 
             Assert.IsTrue(response.IsSuccessful);
@@ -69,7 +69,7 @@ namespace SatisfactoryClientTests
                     Content = new StringContent("{\"data\":{\"testProperty1\":\"TEST1\",\"testProperty_2\":123}}")
                 });
 
-            var client = new HttpsClient(_ip, client: mockHandler.CreateClient());
+            var client = new SatisfactoryClient(_ip, client: mockHandler.CreateClient());
             var response = await client.PostToServerAsync<TestFunctionRequest, bool>("TestFunction");
 
             Assert.IsTrue(response.IsSuccessful);
@@ -89,7 +89,7 @@ namespace SatisfactoryClientTests
                     Content = new StringContent("{\"errorCode\":\"bad_request\",\"errorMessage\":\"That was a really bad request\"}")
                 });
 
-            var client = new HttpsClient(_ip, client: mockHandler.CreateClient());
+            var client = new SatisfactoryClient(_ip, client: mockHandler.CreateClient());
             var response = await client.PostToServerAsync<TestFunctionRequest, TestFunctionResponse>("TestFunction");
 
             Assert.IsFalse(response.IsSuccessful);
@@ -112,7 +112,7 @@ namespace SatisfactoryClientTests
                     Content = new StringContent("{\"data\":1}")
                 });
 
-            var client = new HttpsClient(_ip, client: mockHandler.CreateClient());
+            var client = new SatisfactoryClient(_ip, client: mockHandler.CreateClient());
             var response = await client.PostToServerAsync<TestFunctionRequest, TestFunctionResponse>("TestFunction");
 
             Assert.IsFalse(response.IsSuccessful);

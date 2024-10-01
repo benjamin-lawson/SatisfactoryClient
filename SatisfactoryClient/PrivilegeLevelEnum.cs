@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SatisfactoryClient
+namespace SatisfactorySdk
 {
     public enum PrivilegeLevelEnum
     {
