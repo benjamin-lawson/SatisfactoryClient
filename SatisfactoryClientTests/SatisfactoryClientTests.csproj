@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SatisfactoryClient\SatisfactoryClient.csproj" />
+    <ProjectReference Include="..\SatisfactoryClient\SatisfactorySdk.csproj" />
   </ItemGroup>
 
 </Project>
