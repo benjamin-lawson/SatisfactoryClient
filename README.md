@@ -16,24 +16,24 @@ There are a few ways of getting an authentication token. If the server has alrea
 
 ## Basic Example
 ```csharp
-using SatisfactoryClient;
+using SatisfactorySdk;
 
 namespace ExampleApplication
 {
 	public class Program
 	{
-		public static void Main(string[] args)
+		public static async void Main(string[] args)
 		{
 			// Instantiate a new client. 
 			// NOTE: This does not perform any commands nor test the connection to the server.
-			var client = new HttpsClient(
+			var client = new SatisfactoryClient(
 				"127.0.0.1",
 				authToken: "API_KEY"
 			);
 			
 			// Perform a health check function on the server.
 			// NOTE: This can throw an exception if a non-standard error occurs (e.g. Timeout, SSL, etc.)
-			var healthCheckResponse = client.HealthCheckAsync().Result;
+			var healthCheckResponse = await client.HealthCheckAsync();
 			
 			// Print out the status code returned from the server.
 			Console.WriteLine(healthCheckResponse.StatusCode);
@@ -55,26 +55,26 @@ namespace ExampleApplication
 ## Advanced Examples
 ### Setting up a brand new server
 ```csharp
-var client = new HttpsClient("127.0.0.1");
+var client = new SatisfactoryClient("127.0.0.1");
 
 // Perform the initial login to get a admin token
-var loginResponse = client.PasswordlessLoginAsync(PrivilegeLevelEnum.InitialAdmin).Result;
+var loginResponse = await client.PasswordlessLoginAsync(PrivilegeLevelEnum.InitialAdmin);
 
 // Set the client's auth token to what was received before
 client.TrySetAuthToken(loginResponse.RequestResponse.Data.AuthenticationToken);
 
 // Claim the server and set the admin password for the server
-var claimServerResponse = client.ClaimServerAsync("Test Server", "Admin1234!");
+var claimServerResponse = await client.ClaimServerAsync("Test Server", "Admin1234!");
 
 // Login to the server using the newly set admin password
-loginResponse = client.PasswordLoginAsync("Admin1234!", PrivilegeLevelEnum.Administrator).Result;
+loginResponse = await client.PasswordLoginAsync("Admin1234!", PrivilegeLevelEnum.Administrator);
 
 // From this point, you can begin the rest of set up (i.e. settings, saves, sessions, etc.)
 ```
 
 ### Utilizing non-standard configurations
 ```csharp
-var client = new HttpsClient(
+var client = new SatisfactoryClient(
 	"127.0.0.1",
 	authToken: "API_KEY", // Can pass the API bearer token in from instatiation rather than performing a login
 	port: 7788, // Can use any port (assuming it is a valid port)
