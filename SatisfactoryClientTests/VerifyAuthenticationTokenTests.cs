@@ -39,7 +39,7 @@ namespace SatisfactoryClientTests
                     StatusCode = HttpStatusCode.BadRequest
                 });
 
-            _client = new SatisfactoryClient(_ip, client: mockHandler.CreateClient());
+            _client = new SatisfactoryClient(_ip, 7777, client: mockHandler.CreateClient());
         }
 
         [Test]

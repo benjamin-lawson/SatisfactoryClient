@@ -27,7 +27,7 @@ namespace SatisfactoryClientTests
                     Content = new StringContent("{\"data\":{\"health\":\"healthy\",\"serverCustomData\":\"\"}}")
                 });
 
-            var client = new SatisfactoryClient(_ip, client: mockHandler.CreateClient());
+            var client = new SatisfactoryClient(_ip, 7777, client: mockHandler.CreateClient());
             var response = await client.HealthCheckAsync("");
 
             Assert.IsTrue(response.IsSuccessful);
@@ -48,7 +48,7 @@ namespace SatisfactoryClientTests
                     Content = new StringContent("{\"data\":{\"health\":\"slow\",\"serverCustomData\":\"\"}}")
                 });
 
-            var client = new SatisfactoryClient(_ip, client: mockHandler.CreateClient());
+            var client = new SatisfactoryClient(_ip, 7777, client: mockHandler.CreateClient());
             var response = await client.HealthCheckAsync("");
 
             Assert.IsTrue(response.IsSuccessful);

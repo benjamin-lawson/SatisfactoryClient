@@ -13,30 +13,30 @@ namespace SatisfactoryClientTests
         [Test]
         public void ClientInstantiation()
         {
-            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1");
-            Assert.That(client.FullConnectionString, Is.EqualTo("https://127.0.0.1:7777/api/v1"));
+            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", 7777);
+            Assert.That(client.ConnectionString, Is.EqualTo("https://127.0.0.1:7777/api/v1"));
         }
 
         [Test]
         public void UniquePort()
         {
-            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", port: 7878);
-            Assert.That(client.FullConnectionString, Is.EqualTo("https://127.0.0.1:7878/api/v1"));
+            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", 7878);
+            Assert.That(client.ConnectionString, Is.EqualTo("https://127.0.0.1:7878/api/v1"));
         }
 
         [Test]
         public void UsePort()
         {
-            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", usePort: false);
-            Assert.That(client.FullConnectionString, Is.EqualTo("https://127.0.0.1/api/v1"));
+            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", 7777, usePort: false);
+            Assert.That(client.ConnectionString, Is.EqualTo("https://127.0.0.1/api/v1"));
         }
 
         [Test]
         public void AuthToken()
         {
             HttpClient httpClient = new HttpClient();
-            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", client: httpClient, authToken: "TEST1234");
-            Assert.That(client.FullConnectionString, Is.EqualTo("https://127.0.0.1:7777/api/v1"));
+            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", 7777, client: httpClient, authToken: "TEST1234");
+            Assert.That(client.ConnectionString, Is.EqualTo("https://127.0.0.1:7777/api/v1"));
             Assert.That(httpClient.DefaultRequestHeaders.Authorization.Parameter, Is.EqualTo("TEST1234"));
         }
 
@@ -50,7 +50,7 @@ namespace SatisfactoryClientTests
         public void SetAuthToken()
         {
             HttpClient httpClient = new HttpClient();
-            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", client: httpClient);
+            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", 7777, client: httpClient);
             Assert.IsTrue(client.TrySetAuthToken("TEST1234"));
             Assert.That(httpClient.DefaultRequestHeaders.Authorization.Parameter, Is.EqualTo("TEST1234"));
         }
@@ -58,7 +58,7 @@ namespace SatisfactoryClientTests
         [Test]
         public void SetAuthTokenEmptyString()
         {
-            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1");
+            SatisfactoryClient client = new SatisfactoryClient("127.0.0.1", 7777);
             Assert.IsFalse(client.TrySetAuthToken(""));
         }
     }

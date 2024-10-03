@@ -28,6 +28,7 @@ namespace ExampleApplication
 			// NOTE: This does not perform any commands nor test the connection to the server.
 			var client = new SatisfactoryClient(
 				"127.0.0.1",
+				7777,
 				authToken: "API_KEY"
 			);
 			
@@ -55,7 +56,7 @@ namespace ExampleApplication
 ## Advanced Examples
 ### Setting up a brand new server
 ```csharp
-var client = new SatisfactoryClient("127.0.0.1");
+var client = new SatisfactoryClient("127.0.0.1", 7777);
 
 // Perform the initial login to get a admin token
 var loginResponse = await client.PasswordlessLoginAsync(PrivilegeLevelEnum.InitialAdmin);
@@ -76,10 +77,19 @@ loginResponse = await client.PasswordLoginAsync("Admin1234!", PrivilegeLevelEnum
 ```csharp
 var client = new SatisfactoryClient(
 	"127.0.0.1",
+	7788,
 	authToken: "API_KEY", // Can pass the API bearer token in from instatiation rather than performing a login
-	port: 7788, // Can use any port (assuming it is a valid port)
 	trustSelfSignedCerts: true, // You can either trust or not trust the self-signed certificates
 	usePort: false, // You an decide to not use the port in the connection string (i.e. https://127.0.0.1/api/v1)
+	client: new HttpClient(), // You can pass in the HTTP Client to be used by the Satisfactory Client (allows mocked responses for unit testing)
+	logger: new Logger() // You can pass in your own logger for the Satisfactory Client to use
+);
+
+// You can also provide the full connection string of the server API
+var client = new SatisfactoryClient(
+	"https://127.0.0.1:7777/api/v1",
+	authToken: "API_KEY", // Can pass the API bearer token in from instatiation rather than performing a login
+	trustSelfSignedCerts: true, // You can either trust or not trust the self-signed certificates
 	client: new HttpClient(), // You can pass in the HTTP Client to be used by the Satisfactory Client (allows mocked responses for unit testing)
 	logger: new Logger() // You can pass in your own logger for the Satisfactory Client to use
 );

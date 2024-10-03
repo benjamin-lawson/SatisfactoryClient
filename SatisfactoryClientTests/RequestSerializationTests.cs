@@ -17,7 +17,7 @@ namespace SatisfactoryClientTests
         [SetUp] 
         public void SetUp() 
         {
-            _client = new SatisfactoryClient("127.0.0.1");
+            _client = new SatisfactoryClient("127.0.0.1", 7777);
         }
 
         [Test]

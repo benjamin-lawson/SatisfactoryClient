@@ -8,28 +8,23 @@ namespace SatisfactorySdk
 {
     public class SatisfactoryClient
     {
-        private string _ip;
-        private int _port = 7777;
-        private string _authToken;
+        private string? _authToken;
         private HttpClient _httpClient;
         private ILogger _logger;
         private string _fullConnectionString = "";
 
-        public string IP => _ip;
-        public int Port => _port;
-        public string FullConnectionString => _fullConnectionString;
+        public string ConnectionString => _fullConnectionString;
 
-        public SatisfactoryClient(string ip, string authToken = "", int port = 7777, bool trustSelfSignedCerts = false, bool usePort = true, HttpClient? client = null, ILogger? logger = null)
+        public SatisfactoryClient(string ip, int port, string authToken = "",  bool trustSelfSignedCerts = false, bool usePort = true, HttpClient? client = null, ILogger? logger = null) 
+            : this(usePort ? $"https://{ip}:{port}/api/v1" : $"https://{ip}/api/v1", authToken: authToken, trustSelfSignedCerts: trustSelfSignedCerts, client: client, logger: logger)
         {
-            _ip = ip;
-
-            if (port < 0 || port > 65535)
+            if (usePort && (port < 0 || port > 65535))
             {
                 throw new InvalidDataException($"Port {port} is an invalid port number");
             }
-
-            _port = port;
-
+        }
+        public SatisfactoryClient(string connectionString, string authToken = "", bool trustSelfSignedCerts = false, HttpClient? client = null, ILogger? logger = null)
+        {
             if (client != null)
             {
                 _httpClient = client;
@@ -70,7 +65,7 @@ namespace SatisfactorySdk
                 _logger = logger;
             }
 
-            _fullConnectionString = usePort ? $"https://{IP}:{Port}/api/v1" : $"https://{IP}/api/v1";
+            _fullConnectionString = connectionString;
         }
 
         /// <summary>
@@ -126,7 +121,7 @@ namespace SatisfactorySdk
         /// <returns></returns>
         internal async Task<ClientResponse<Q>> PostToServerAsync<T, Q>(string functionName, T? data = default)
         {
-            var response = await _httpClient.PostAsync(FullConnectionString, SerializeRequestData<T>(functionName, data));
+            var response = await _httpClient.PostAsync(_fullConnectionString, SerializeRequestData<T>(functionName, data));
             string responseBody = await response.Content.ReadAsStringAsync();
             _logger.LogDebug($"{functionName} Response: {await response.Content.ReadAsStringAsync()}");
             ClientResponse<Q> clientResponse = new ClientResponse<Q>() {
