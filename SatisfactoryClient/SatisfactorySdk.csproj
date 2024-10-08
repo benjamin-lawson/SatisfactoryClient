@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <PackageId>satisfactory-sdk</PackageId>
     <Title>Satisfactory SDK</Title>
-    <Version>0.0.2</Version>
+    <Version>0.1.1</Version>
     <Authors>Lawson470189</Authors>
     <Company />
     <Description>A SDK for interacting with dedicate servers for the game Satisfactory.</Description>

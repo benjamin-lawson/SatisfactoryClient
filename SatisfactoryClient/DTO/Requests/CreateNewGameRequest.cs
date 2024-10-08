@@ -10,7 +10,7 @@ namespace SatisfactorySdk.DTO
     [Serializable]
     public class CreateNewGameRequest
     {
-        [JsonPropertyName("NewGameData")] public NewGameData NewGameData;
+        [JsonPropertyName("NewGameData")] public NewGameData NewGameData { get; set; }
     }
 
     [Serializable]

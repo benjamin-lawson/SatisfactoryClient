@@ -3,6 +3,12 @@ using System.Text;
 using System.Text.Json;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Logging;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System;
+using System.Text.Json.Serialization;
+using static System.Net.Mime.MediaTypeNames;
+using System.Net.Http.Json;
+using System.Net;
 
 namespace SatisfactorySdk
 {
@@ -25,24 +31,31 @@ namespace SatisfactorySdk
         }
         public SatisfactoryClient(string connectionString, string authToken = "", bool trustSelfSignedCerts = false, HttpClient? client = null, ILogger? logger = null)
         {
-            if (client != null)
+            
+
+            var handler = new HttpClientHandler();
+            if (handler.SupportsAutomaticDecompression)
             {
-                _httpClient = client;
-            }
-            else
-            {
-                _httpClient = new HttpClient();
+                handler.AutomaticDecompression = DecompressionMethods.GZip |
+                                                 DecompressionMethods.Deflate;
             }
 
             if (trustSelfSignedCerts)
             {
-                var handler = new HttpClientHandler();
                 handler.ClientCertificateOptions = ClientCertificateOption.Manual;
                 handler.ServerCertificateCustomValidationCallback =
                 (httpRequestMessage, cert, cetChain, policyErrors) =>
                 {
                     return true;
                 };
+            }
+
+            if (client != null)
+            {
+                _httpClient = client;
+            }
+            else
+            {
                 _httpClient = new HttpClient(handler);
             }
 
@@ -310,6 +323,95 @@ namespace SatisfactorySdk
         public async Task<ClientResponse<bool>> ShutdownAsync() =>
             await PostToServerAsync<Dictionary<string, string>, bool>("Shutdown");
 
+
+        public async Task<ClientResponse<bool>> DownloadSaveGameAsync(string saveName, string savePath)
+        {
+            var response = await _httpClient.PostAsync(_fullConnectionString, SerializeRequestData("DownloadSaveGame", new DownloadSaveGameRequest { SaveName = saveName}));
+
+            _logger.LogDebug($"DownloadSaveGame Response Status: {response.StatusCode}");
+            ClientResponse<bool> clientResponse = new ClientResponse<bool>()
+            {
+                StatusCode = response.StatusCode
+            };
+
+            try
+            {
+                clientResponse.ErrorResponse = JsonSerializer.Deserialize<ErrorResponse>(await response.Content.ReadAsStringAsync());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogTrace($"Execption in reading error response: {ex.Message}");
+            }
+
+            try
+            {
+                using (var s = await response.Content.ReadAsStreamAsync())
+                {
+                    using (var fs = new FileStream(savePath, FileMode.OpenOrCreate, FileAccess.Write))
+                    {
+                        await s.CopyToAsync(fs);
+                    }
+                }
+                clientResponse.IsSuccessful = response.IsSuccessStatusCode && !clientResponse.HasError && File.Exists(savePath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogTrace($"Execption in reading response body: {ex.Message}");
+                clientResponse.ErrorResponse = new ErrorResponse() { ErrorCode = "unknown_exception", ErrorMessage = ex.Message };
+                clientResponse.IsSuccessful = false;
+            }
+
+            return clientResponse;
+        }
+
+        public async Task<ClientResponse<bool>> UploadSaveGameAsync(string saveName, string savePath, bool loadSaveGameOnUpload, bool enableAdvancedGameSettings)
+        {
+            if (!File.Exists(savePath)) 
+            {
+                throw new FileNotFoundException($"No file at {savePath}");
+            }
+
+            RequestData<UploadSaveGameRequest> requestData = new RequestData<UploadSaveGameRequest>
+            {
+                Function = "UploadSaveGame",
+                Data = new UploadSaveGameRequest
+                {
+                    SaveName = saveName,
+                    DoLoadSaveGameOnUpload = loadSaveGameOnUpload,
+                    DoEnableAdvancedGameSettingsOnLoad = enableAdvancedGameSettings
+                }
+            };
+
+            var fileContent = new ByteArrayContent(File.ReadAllBytes(savePath));
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+
+            var content = new MultipartFormDataContent
+            {
+                { JsonContent.Create(requestData, mediaType: MediaTypeHeaderValue.Parse("application/json")), "data" },
+                { fileContent, "saveGameFile" }
+            };
+
+            content.Headers.ContentLength = (await content.ReadAsByteArrayAsync()).LongLength;
+
+            var response = await _httpClient.PostAsync(_fullConnectionString, content);
+
+            ClientResponse<bool> clientResponse = new ClientResponse<bool>()
+            {
+                StatusCode = response.StatusCode
+            };
+
+            try
+            {
+                clientResponse.ErrorResponse = JsonSerializer.Deserialize<ErrorResponse>(await response.Content.ReadAsStringAsync());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogTrace($"Execption in reading error response: {ex.Message}");
+            }
+
+            clientResponse.IsSuccessful = clientResponse.IsSuccessful = response.IsSuccessStatusCode && !clientResponse.HasError;
+            return clientResponse;
+        }
         
     }
 }

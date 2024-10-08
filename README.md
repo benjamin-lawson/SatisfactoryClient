@@ -12,7 +12,7 @@ There are a few ways of getting an authentication token. If the server has alrea
 3. Open the server console and run the `server.GenerateAPIToken` command.
 4. Copy the given token out of the console.
 
-![generating token from in-game consolve](./docs/images/GenerateTokenFromConsole.png "Generating token from in-game consolve")
+![generating token from in-game console](https://github.com/benjamin-lawson/SatisfactoryClient/blob/main/docs/images/GenerateTokenFromConsole.png?raw=true "Generating token from in-game consolve")
 
 ## Basic Example
 ```csharp
