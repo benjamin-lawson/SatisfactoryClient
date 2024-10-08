@@ -9,18 +9,12 @@ namespace SatisfactoryClientTests
     {
         private const string _ip = "127.0.0.1";
 
-        public bool MatchRequestFunction(HttpRequestMessage request)
-        {
-            string bodyContent = request.Content.ReadAsStringAsync().Result;
-            return bodyContent.Contains("HealthCheck");
-        }
-
         [Test]
         public async Task SuccessfulRequest()
         {
             var mockHandler = new Mock<HttpMessageHandler>();
             mockHandler
-                .SetupRequest($"https://{_ip}:7777/api/v1", MatchRequestFunction)
+                .SetupRequest($"https://{_ip}:7777/api/v1", (pred) => TestUtilities.MatchRequestFunction("HealthCheck", pred))
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,
@@ -41,7 +35,7 @@ namespace SatisfactoryClientTests
         {
             var mockHandler = new Mock<HttpMessageHandler>();
             mockHandler
-                .SetupRequest($"https://{_ip}:7777/api/v1", MatchRequestFunction)
+                .SetupRequest($"https://{_ip}:7777/api/v1", (pred) => TestUtilities.MatchRequestFunction("HealthCheck", pred))
                 .ReturnsAsync(new HttpResponseMessage
                 {
                     StatusCode = HttpStatusCode.OK,

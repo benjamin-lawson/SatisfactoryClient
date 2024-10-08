@@ -152,7 +152,7 @@ namespace SatisfactorySdk
 
             if (typeof(Q) == typeof(bool))
             {
-                clientResponse.IsSuccessful = response.IsSuccessStatusCode;
+                clientResponse.IsSuccessful = response.IsSuccessStatusCode && string.IsNullOrEmpty(clientResponse.ErrorResponse?.ErrorCode);
                 return clientResponse;
             }
 
@@ -216,8 +216,8 @@ namespace SatisfactorySdk
         /// <summary>
         /// Attempts to set the admin password for the server. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#SetAdminPassword">Wiki Docs</see> for more information.
         /// </summary>
-        public async Task<ClientResponse<bool>> SetAdminPasswordAsync(string password) =>
-            await PostToServerAsync<PasswordChangeRequest, bool>("SetAdminPassword", new PasswordChangeRequest() { Password = password });
+        public async Task<ClientResponse<AuthTokenResponse>> SetAdminPasswordAsync(string password) =>
+            await PostToServerAsync<PasswordChangeRequest, AuthTokenResponse>("SetAdminPassword", new PasswordChangeRequest() { Password = password, AuthenticationToken = _authToken });
 
         /// <summary>
         /// Retrieves the current state of the server. Checkout the <see href="https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API#QueryServerState">Wiki Docs</see> for more information.

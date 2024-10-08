@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <PackageId>satisfactory-sdk</PackageId>
     <Title>Satisfactory SDK</Title>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <Authors>Lawson470189</Authors>
     <Company />
     <Description>A SDK for interacting with dedicate servers for the game Satisfactory.</Description>
@@ -17,6 +17,7 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Updated bool response to take into account error responses in body.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

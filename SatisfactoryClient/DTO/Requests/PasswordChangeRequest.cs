@@ -10,5 +10,6 @@ namespace SatisfactorySdk.DTO
     public class PasswordChangeRequest
     {
         [JsonPropertyName("Password")] public string Password { get; set; }
+        [JsonPropertyName("AuthenticationToken")] public string AuthenticationToken { get; set; }
     }
 }
