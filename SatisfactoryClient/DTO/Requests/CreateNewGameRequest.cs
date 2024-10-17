@@ -19,7 +19,7 @@ namespace SatisfactorySdk.DTO
         [JsonPropertyName("SessionName")] public string SessionName { get; set; }
         [JsonPropertyName("MapName")] public string? MapName { get; set; }
         [JsonPropertyName("StartingLocation")] public string? StartingLocation { get; set; }
-        [JsonPropertyName("SkipOnboarding")] public bool SkipOnboarding { get; set; }
+        [JsonPropertyName("bSkipOnboarding")] public bool SkipOnboarding { get; set; }
         [JsonPropertyName("AdvancedGameSettings")] public Dictionary<string, string> AdvancedGameSettings { get; set; } = new();
         [JsonPropertyName("CustomOptionsOnlyForModding")] public Dictionary<string, string> CustomOptionsOnlyForModding { get; set; } = new();
     }
