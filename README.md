@@ -81,6 +81,7 @@ loginResponse = await client.PasswordLoginAsync("Admin1234!", PrivilegeLevelEnum
 var client = new SatisfactoryClient(
 	"127.0.0.1",
 	7788,
+	updPort: 7788, // Can pass a custom port for the UDP connection
 	authToken: "API_KEY", // Can pass the API bearer token in from instatiation rather than performing a login
 	trustSelfSignedCerts: true, // You can either trust or not trust the self-signed certificates
 	usePort: false, // You an decide to not use the port in the connection string (i.e. https://127.0.0.1/api/v1)
@@ -89,6 +90,7 @@ var client = new SatisfactoryClient(
 );
 
 // You can also provide the full connection string of the server API
+// NOTE: The UDP endpoint currently does not work with this constructor!
 var client = new SatisfactoryClient(
 	"https://127.0.0.1:7777/api/v1",
 	authToken: "API_KEY", // Can pass the API bearer token in from instatiation rather than performing a login
