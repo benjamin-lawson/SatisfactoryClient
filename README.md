@@ -1,6 +1,9 @@
 # SatisfactoryClient
 ## Description
-A client utilizing the HTTPS API provided by Satisfactory servers. for documentation on the API, see the [wiki docs](https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API).
+A client utilizing the HTTPS API provided by Satisfactory servers. for documentation on the API, see the [wiki docs](https://satisfactory.wiki.gg/wiki/Dedicated_servers/HTTPS_API). 
+
+## Add to a Project
+To use this client, you can run `dotnet add package satisfactory-sdk` (see the [NuGet homepage](https://www.nuget.org/packages/satisfactory-sdk/) for more information).
 
 
 ## Getting a Authentication Token

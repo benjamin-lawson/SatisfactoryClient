@@ -9,6 +9,8 @@ using System.Text.Json.Serialization;
 using static System.Net.Mime.MediaTypeNames;
 using System.Net.Http.Json;
 using System.Net;
+using System.Net.Sockets;
+using System.Security.Cryptography;
 
 namespace SatisfactorySdk
 {
@@ -16,19 +18,37 @@ namespace SatisfactorySdk
     {
         private string? _authToken;
         private HttpClient _httpClient;
+        private UdpClient? _udpClient;
         private ILogger _logger;
         private string _fullConnectionString = "";
 
+        private byte[] udpSendData = [
+            .. BitConverter.GetBytes(Convert.ToUInt16("F6D5", 16)),
+            0,
+            1,
+            .. BitConverter.GetBytes(BitConverter.ToInt64(Guid.NewGuid().ToByteArray(),0)),
+            1,
+        ];
+        private IPEndPoint _remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
+
         public string ConnectionString => _fullConnectionString;
 
-        public SatisfactoryClient(string ip, int port, string authToken = "",  bool trustSelfSignedCerts = false, bool usePort = true, HttpClient? client = null, ILogger? logger = null) 
+        public SatisfactoryClient(string ip, int port, int udpPort = 7777, string authToken = "",  bool trustSelfSignedCerts = false, bool usePort = true, HttpClient? client = null, ILogger? logger = null) 
             : this(usePort ? $"https://{ip}:{port}/api/v1" : $"https://{ip}/api/v1", authToken: authToken, trustSelfSignedCerts: trustSelfSignedCerts, client: client, logger: logger)
         {
             if (usePort && (port < 0 || port > 65535))
             {
                 throw new InvalidDataException($"Port {port} is an invalid port number");
             }
+
+            _udpClient = new UdpClient(ip, port);
         }
+
+        /// <summary>
+        /// Constructor for the client that uses a custom connection string. <br/>
+        /// <b>NOTE:</b> You be unable to use the UDP call using this constructor.
+        /// </summary>
         public SatisfactoryClient(string connectionString, string authToken = "", bool trustSelfSignedCerts = false, HttpClient? client = null, ILogger? logger = null)
         {
             
@@ -411,6 +431,24 @@ namespace SatisfactorySdk
 
             clientResponse.IsSuccessful = clientResponse.IsSuccessful = response.IsSuccessStatusCode && !clientResponse.HasError;
             return clientResponse;
+        }
+
+        public async Task<ServerStateResponse?> PollServerStateUdpAsync()
+        {
+            if (_udpClient is null) return null;
+
+            try
+            {
+                await _udpClient.SendAsync(udpSendData);
+                var response = await _udpClient.ReceiveAsync();
+                return ServerStateResponse.Deserialize(response.Buffer);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Execption in polling for server state (UDP): {ex.Message}");
+                return null;
+            }
+            
         }
         
     }
